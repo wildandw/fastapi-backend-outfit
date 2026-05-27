@@ -1,0 +1,65 @@
+from utils.firebase import get_db_reference
+from utils.cloudinary_helper import delete_image
+
+
+class WardrobeService:
+
+    def save_item(self, user_id: str, item_id: str, item: dict) -> dict:
+        """
+        Menyimpan metadata pakaian ke Firebase Realtime Database
+        menggunakan db.reference('users/{user_id}/wardrobe/{item_id}').set()
+        """
+        ref = get_db_reference(f"users/{user_id}/wardrobe/{item_id}")
+        ref.set(item)
+        return item
+
+    def get_all_items(self, user_id: str) -> list:
+        """
+        Mengambil seluruh item pakaian pengguna
+        menggunakan db.reference('users/{user_id}/wardrobe').get()
+        """
+        ref = get_db_reference(f"users/{user_id}/wardrobe")
+        data = ref.get()
+        if not data:
+            return []
+        return list(data.values())
+
+    def get_item_by_id(self, user_id: str, item_id: str) -> dict:
+        """
+        Mengambil satu item pakaian berdasarkan item_id
+        menggunakan db.reference('users/{user_id}/wardrobe/{item_id}').get()
+        """
+        ref = get_db_reference(f"users/{user_id}/wardrobe/{item_id}")
+        return ref.get()
+
+    def get_items_by_category(self, user_id: str, category: str) -> list:
+        """
+        Mengambil item pakaian berdasarkan kategori
+        untuk digunakan sebagai kandidat rekomendasi
+        """
+        all_items = self.get_all_items(user_id)
+        return [item for item in all_items if item.get("category") == category]
+
+    def update_item(self, user_id: str, item_id: str, updates: dict) -> dict:
+        """
+        Mengubah metadata pakaian menggunakan
+        db.reference('users/{user_id}/wardrobe/{item_id}').update()
+        """
+        ref = get_db_reference(f"users/{user_id}/wardrobe/{item_id}")
+        existing = ref.get()
+        if not existing:
+            return None
+        ref.update(updates)
+        return {**existing, **updates}
+
+    def delete_item(self, user_id: str, item_id: str) -> bool:
+        """
+        Menghapus data pakaian dari lemari digital
+        menggunakan db.reference('users/{user_id}/wardrobe/{item_id}').delete()
+        """
+        ref = get_db_reference(f"users/{user_id}/wardrobe/{item_id}")
+        item = ref.get()
+        if not item:
+            return False
+        ref.delete()
+        return True
