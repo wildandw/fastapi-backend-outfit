@@ -2,7 +2,14 @@ from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import wardrobe, recommendation, tryon, favorites
+from routers import (
+    wardrobe,
+    recommendation,
+    tryon,
+    favorites,
+    auth,
+    register
+)
 
 app = FastAPI(
     title="Smart Outfit Recommendation API",
@@ -20,6 +27,8 @@ app.add_middleware(
 )
 
 # Routers
+app.include_router(auth.router, tags=["Auth"])
+app.include_router(register.router, tags=["Register"])
 app.include_router(wardrobe.router, prefix="/wardrobe", tags=["Wardrobe"])
 app.include_router(recommendation.router, prefix="/recommend", tags=["Recommendation"])
 app.include_router(tryon.router, prefix="/tryon", tags=["Virtual Try-On"])

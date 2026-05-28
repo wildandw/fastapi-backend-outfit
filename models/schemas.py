@@ -7,6 +7,13 @@ from enum import Enum
 class FavoriteType(str, Enum):
     tryon = "tryon"
     outfit = "outfit"
+    
+# ── AUTH / USER MODELS ──
+
+class UserProfileRequest(BaseModel):
+    """Schema request untuk menyimpan profil user"""
+    username: str
+    email: str
 
 # ── WARDROBE MODELS ──
 

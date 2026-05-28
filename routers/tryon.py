@@ -7,16 +7,13 @@ router = APIRouter()
 tryon_service = TryOnService()
 
 
-# ── SKPL-F-013, F-014, F-015 ──
+
 @router.post("/", response_model=TryOnResponse)
 async def virtual_try_on(
     request: TryOnRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-013: Memilih outfit hasil rekomendasi untuk divisualisasikan
-    SKPL-F-014: Menampilkan hasil visualisasi virtual try-on
-    SKPL-F-015: Menyimpan hasil visualisasi virtual try-on
 
     Alur proses:
     1. Mengekstrak person_image_url, top_item_id, bottom_item_id
@@ -46,7 +43,7 @@ async def get_tryon_history(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-015: Mengambil riwayat hasil virtual try-on
+    Mengambil riwayat hasil virtual try-on
     dari Firebase Realtime Database menggunakan
     db.reference('tryon/{uid}').get()
     """
