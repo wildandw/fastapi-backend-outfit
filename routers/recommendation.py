@@ -14,9 +14,6 @@ async def get_outfit_recommendation(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-011: Mengembalikan top 3 hasil rekomendasi outfit
-    SKPL-F-012: Menghitung scoring dan ranking berbasis rule-based
-    SKPL-F-013: Memilih outfit hasil rekomendasi untuk divisualisasikan
 
     Alur proses:
     1. Mengambil item yang dipilih dari Firebase

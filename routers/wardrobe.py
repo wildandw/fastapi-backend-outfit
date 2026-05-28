@@ -24,10 +24,7 @@ async def upload_clothing_image(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-004: Menerima file gambar dari galeri perangkat pengguna
-    SKPL-F-005: Menghapus latar belakang menggunakan rembg.remove()
-    SKPL-F-006: Mengunggah gambar ke Cloudinary
-    SKPL-F-007: Mendeteksi atribut pakaian secara otomatis
+
     """
     # Validasi format file
     if file.content_type not in ["image/jpeg", "image/jpg", "image/png"]:
@@ -61,7 +58,7 @@ async def upload_clothing_image(
     }
 
 
-# ── SKPL-F-004, F-006, F-007 (simpan metadata) ──
+
 @router.post("/items", response_model=ClothingItemResponse)
 async def add_clothing_item(
     item_data: ClothingItemCreate,
@@ -95,7 +92,7 @@ async def get_wardrobe_items(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-008: Mengambil seluruh koleksi pakaian pengguna
+    Mengambil seluruh koleksi pakaian pengguna
     dari Firebase Realtime Database menggunakan
     db.reference('wardrobe/{uid}').get()
     """
@@ -127,7 +124,7 @@ async def update_clothing_item(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-009: Mengubah metadata pakaian yang telah disimpan
+    Mengubah metadata pakaian yang telah disimpan
     menggunakan db.reference('wardrobe/{uid}/{item_id}').update()
     """
     updated_item = wardrobe_service.update_item(
@@ -146,7 +143,7 @@ async def delete_clothing_item(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-010: Menghapus data pakaian dari lemari digital
+    Menghapus data pakaian dari lemari digital
     menggunakan db.reference('wardrobe/{uid}/{item_id}').delete()
     """
     success = wardrobe_service.delete_item(current_user["uid"], item_id)
@@ -162,7 +159,7 @@ async def detect_attributes(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    SKPL-F-007: Mendeteksi atribut pakaian secara otomatis
+    Mendeteksi atribut pakaian secara otomatis
     menggunakan colorthief untuk warna dan CLIP model untuk kategori
     Hasil dapat diedit oleh pengguna setelah deteksi
     """
