@@ -85,11 +85,11 @@ class RecommendationResponse(BaseModel):
 
 # ── VIRTUAL TRY-ON MODELS ──
 
-class TryOnRequest(BaseModel):
-    """Schema request virtual try-on"""
-    person_image_url: str
-    top_item_id: str
-    bottom_item_id: str
+# class TryOnRequest(BaseModel):
+#     """Schema request virtual try-on"""
+#     person_image_url: str
+#     top_item_id: str
+#     bottom_item_id: str
 
 class TryOnResponse(BaseModel):
     """Schema response hasil virtual try-on"""
