@@ -36,10 +36,22 @@ class RemoveBackgroundService:
                 timeout=300
             )
 
+            print("=================================")
+            print("GPU URL:", GPU_SERVER_URL)
+            print("Response status:", response.status_code)
+            print("Response body:", response.text)
+            print("=================================")
+
             if response.status_code != 200:
+
+                try:
+                    error_detail = response.json()
+                except:
+                    error_detail = response.text
+
                 raise HTTPException(
                     status_code=500,
-                    detail="Remove background gagal"
+                    detail=f"Remove background gagal: {error_detail}"
                 )
 
             result_b64 = response.json()["result_b64"]

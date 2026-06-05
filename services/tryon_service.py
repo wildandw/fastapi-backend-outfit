@@ -104,6 +104,10 @@ class TryOnService:
 
         start_time = time.time()
 
+        print("TRYON START")
+        print("USER:", user_id)
+        print("TOP:", top_item_id)
+        print("BOTTOM:", bottom_item_id)
         # =====================================================
         # GET ITEM
         # =====================================================
@@ -209,11 +213,13 @@ class TryOnService:
 
         tryon_id = str(uuid.uuid4())
 
-        result_image_url = self.image_service.upload_to_cloudinary(
+        upload_result = self.image_service.upload_to_cloudinary(
             final_bytes,
             folder=f"tryon/{user_id}",
             public_id=tryon_id
         )
+
+        result_image_url = upload_result["image_url"]
 
         # =====================================================
         # SAVE FIREBASE
@@ -225,17 +231,11 @@ class TryOnService:
         )
 
         tryon_data = {
-
             "tryon_id": tryon_id,
-
             "result_image_url": result_image_url,
-
             "top_item_id": top_item_id,
-
             "bottom_item_id": bottom_item_id,
-
             "processing_time_seconds": processing_time,
-
             "created_at": datetime.utcnow().isoformat()
         }
 

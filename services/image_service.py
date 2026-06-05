@@ -43,7 +43,7 @@ class ImageService:
         image_bytes: bytes,
         folder: str,
         public_id: str = None
-    ) -> str:
+    ):
 
         return upload_image(
             image_bytes,
