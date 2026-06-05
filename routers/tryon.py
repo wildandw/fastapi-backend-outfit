@@ -23,16 +23,27 @@ async def virtual_try_on(
     current_user: dict = Depends(get_current_user)
 ):
 
-    person_bytes = await person_image.read()
+    try:
 
-    result = tryon_service.process_tryon(
-        user_id=current_user["uid"],
-        person_image_bytes=person_bytes,
-        top_item_id=top_item_id,
-        bottom_item_id=bottom_item_id
-    )
+        person_bytes = await person_image.read()
 
-    return result
+        result = tryon_service.process_tryon(
+            user_id=current_user["uid"],
+            person_image_bytes=person_bytes,
+            top_item_id=top_item_id,
+            bottom_item_id=bottom_item_id
+        )
+
+        return result
+
+    except Exception as e:
+
+        print("================================")
+        print("TRYON ERROR:")
+        print(str(e))
+        print("================================")
+
+        raise
 
 
 @router.get("/history")

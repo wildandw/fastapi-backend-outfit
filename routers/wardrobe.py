@@ -86,10 +86,13 @@ async def upload_clothing_image(
         # =====================================================
         # UPLOAD CLOUDINARY
         # =====================================================
-        image_url = image_service.upload_to_cloudinary(
+        upload_result = image_service.upload_to_cloudinary(
             thumbnail_bytes,
             folder=f"wardrobe/{current_user['uid']}"
         )
+
+        image_url = upload_result["image_url"]
+        public_id = upload_result["public_id"]
 
         # =====================================================
         # DETECT ATTRIBUTES
@@ -100,14 +103,17 @@ async def upload_clothing_image(
 
         return {
             "image_url": image_url,
+            "public_id": public_id,
             "detected_attributes": detected_attrs,
             "message": "Gambar berhasil diunggah"
         }
 
-    except HTTPException as e:
-        raise e
-
     except Exception as e:
+
+        import traceback
+
+        traceback.print_exc()
+
         raise HTTPException(
             status_code=500,
             detail=f"Upload gagal: {str(e)}"
@@ -121,6 +127,7 @@ async def upload_clothing_image(
 async def add_clothing_item(
     item_data: ClothingItemCreate,
     image_url: str,
+    public_id: str,
     current_user: dict = Depends(get_current_user)
 ):
 
@@ -135,6 +142,7 @@ async def add_clothing_item(
         "activities": item_data.activities,
         "pattern": item_data.pattern,
         "imageUrl": image_url,
+        "publicId": public_id,
         "createdAt": datetime.utcnow().isoformat()
     }
 

@@ -53,13 +53,21 @@ class WardrobeService:
         return {**existing, **updates}
 
     def delete_item(self, user_id: str, item_id: str) -> bool:
-        """
-        Menghapus data pakaian dari lemari digital
-        menggunakan db.reference('users/{user_id}/wardrobe/{item_id}').delete()
-        """
-        ref = get_db_reference(f"users/{user_id}/wardrobe/{item_id}")
+
+        ref = get_db_reference(
+            f"users/{user_id}/wardrobe/{item_id}"
+        )
+
         item = ref.get()
+
         if not item:
             return False
+
+        public_id = item.get("publicId")
+
+        if public_id:
+            delete_image(public_id)
+
         ref.delete()
+
         return True

@@ -10,11 +10,11 @@ cloudinary.config(
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
-def upload_image(image_bytes: bytes, folder: str, public_id: str = None) -> str:
-    """
-    Mengunggah gambar ke Cloudinary menggunakan
-    cloudinary.uploader.upload() dan mengembalikan URL publik
-    """
+def upload_image(
+    image_bytes: bytes,
+    folder: str,
+    public_id: str = None
+):
     result = cloudinary.uploader.upload(
         image_bytes,
         folder=folder,
@@ -22,11 +22,22 @@ def upload_image(image_bytes: bytes, folder: str, public_id: str = None) -> str:
         overwrite=True,
         resource_type="image"
     )
-    return result["secure_url"]
+
+    return {
+        "image_url": result["secure_url"],
+        "public_id": result["public_id"]
+    }
 
 def delete_image(public_id: str) -> bool:
-    """
-    Menghapus gambar dari Cloudinary berdasarkan public_id
-    """
-    result = cloudinary.uploader.destroy(public_id)
+
+    result = cloudinary.uploader.destroy(
+        public_id
+    )
+
+    print(
+        f"DELETE CLOUDINARY: {public_id}"
+    )
+
+    print(result)
+
     return result["result"] == "ok"
