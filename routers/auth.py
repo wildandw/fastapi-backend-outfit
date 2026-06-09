@@ -16,8 +16,3 @@ def verify_user(
         "uid": current_user["uid"]
     }
     
-
-
-@router.get("/test")
-def test():
-    return {"status": "ok"}
