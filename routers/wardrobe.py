@@ -146,6 +146,15 @@ async def add_clothing_item(
         "createdAt": datetime.utcnow().isoformat()
     }
 
+    image_bytes = wardrobe_service.download_image(
+        image_url
+    )
+
+    wardrobe_service.validate_clothing(
+        image_bytes=image_bytes,
+        category=item_data.category
+    )
+
     saved_item = wardrobe_service.save_item(
         current_user["uid"],
         item_id,

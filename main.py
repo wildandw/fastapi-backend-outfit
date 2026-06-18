@@ -30,7 +30,7 @@ app.add_middleware(
 app.include_router(auth.router, tags=["Auth"])
 app.include_router(register.router, tags=["Register"])
 app.include_router(wardrobe.router, prefix="/wardrobe", tags=["Wardrobe"])
-app.include_router(recommendation.router, prefix="/recommend", tags=["Recommendation"])
+app.include_router(recommendation.router, prefix="/recommendation", tags=["Recommendation"])
 app.include_router(tryon.router, prefix="/tryon", tags=["Virtual Try-On"])
 app.include_router(favorites.router, prefix="/favorites", tags=["Favorites"])
 

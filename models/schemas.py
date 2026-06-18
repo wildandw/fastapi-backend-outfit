@@ -118,6 +118,7 @@ class FavoriteResponse(BaseModel):
     type: str
     reference_id: str
     image_url: str
+    public_id: Optional[str] = None
     top_item_id: str
     bottom_item_id: str
     note: Optional[str] = None

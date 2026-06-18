@@ -6,7 +6,7 @@ import requests
 
 from datetime import datetime
 from fastapi import HTTPException
-
+from services.person_validator import PersonValidator
 from services.image_service import ImageService
 from services.wardrobe_service import WardrobeService
 
@@ -22,6 +22,8 @@ class TryOnService:
 
         self.image_service = ImageService()
         self.wardrobe_service = WardrobeService()
+
+        self.person_validator = PersonValidator()
 
     # =====================================================
     # DOWNLOAD IMAGE
@@ -103,6 +105,28 @@ class TryOnService:
     ) -> dict:
 
         start_time = time.time()
+        
+        # =====================================================
+        # VALIDATE PERSON IMAGE
+        # =====================================================
+
+        person_count = self.person_validator.validate(
+            person_image_bytes
+        )
+
+        if person_count == 0:
+
+            raise HTTPException(
+                status_code=400,
+                detail="Foto harus berisi manusia"
+            )
+
+        if person_count > 1:
+
+            raise HTTPException(
+                status_code=400,
+                detail="Gunakan foto dengan satu orang saja"
+            )
 
         print("TRYON START")
         print("USER:", user_id)

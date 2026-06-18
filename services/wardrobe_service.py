@@ -1,8 +1,57 @@
 from utils.firebase import get_db_reference
 from utils.cloudinary_helper import delete_image
+from services.clothing_validator import ClothingValidator
+from fastapi import HTTPException
 
+import requests
 
 class WardrobeService:
+
+    def __init__(self):
+
+        self.clothing_validator = ClothingValidator()
+        
+    # =====================================================
+    # validasi pakaian
+    # =====================================================
+    def validate_clothing(
+        self,
+        image_bytes: bytes,
+        category: str
+    ):
+
+        is_valid = self.clothing_validator.validate(
+            image_bytes=image_bytes,
+            category=category
+        )
+
+        if not is_valid:
+
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Gambar bukan pakaian kategori {category}"
+                )
+            )
+            
+    def download_image(
+        self,
+        image_url: str
+    ) -> bytes:
+
+        response = requests.get(
+            image_url,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+
+            raise HTTPException(
+                status_code=400,
+                detail="Gagal membaca gambar"
+            )
+
+        return response.content
 
     def save_item(self, user_id: str, item_id: str, item: dict) -> dict:
         """

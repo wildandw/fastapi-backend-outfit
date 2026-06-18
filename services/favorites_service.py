@@ -32,18 +32,23 @@ class FavoritesService:
 
         # Unggah foto ke Cloudinary menggunakan cloudinary.uploader.upload()
         # ke folder favorites/{user_id}
-        saved_image_url = upload_image(
+        upload_result = upload_image(
             image_bytes,
             folder=f"favorites/{user_id}",
             public_id=favorite_id
         )
 
+        saved_image_url = upload_result["image_url"]
+
+        saved_public_id = upload_result["public_id"]
+
         # Bangun metadata favorit
         favorite_data = {
             "favorite_id": favorite_id,
-            "type": request.favorite_type,       # 'tryon' atau 'outfit'
-            "reference_id": request.reference_id, # tryon_id atau recommendation_id
-            "image_url": saved_image_url,          # URL foto di Cloudinary
+            "type": request.favorite_type,
+            "reference_id": request.reference_id,
+            "image_url": saved_image_url,
+            "public_id": saved_public_id,
             "top_item_id": request.top_item_id,
             "bottom_item_id": request.bottom_item_id,
             "note": request.note or "",
@@ -83,22 +88,24 @@ class FavoritesService:
         return ref.get()
 
     def delete_favorite(self, user_id: str, favorite_id: str) -> bool:
-        """
-        Menghapus item favorit dari Firebase menggunakan
-        db.reference('users/{uid}/favorites/{favorite_id}').delete()
-        dan menghapus foto dari Cloudinary menggunakan
-        cloudinary.uploader.destroy(public_id=favorite_id)
-        """
-        ref = get_db_reference(f"users/{user_id}/favorites/{favorite_id}")
+
+        ref = get_db_reference(
+            f"users/{user_id}/favorites/{favorite_id}"
+        )
+
         existing = ref.get()
+
         if not existing:
             return False
 
-        # Hapus foto dari Cloudinary
-        delete_image(f"favorites/{user_id}/{favorite_id}")
+        if existing.get("public_id"):
 
-        # Hapus metadata dari Firebase
+            delete_image(
+                existing["public_id"]
+            )
+
         ref.delete()
+
         return True
 
     def is_favorited(self, user_id: str, reference_id: str) -> bool:
