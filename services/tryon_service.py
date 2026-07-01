@@ -12,8 +12,15 @@ from services.wardrobe_service import WardrobeService
 
 from utils.firebase import get_db_reference
 
+# =====================================================
+# RUNPOD CONFIG
+# =====================================================
+RUNPOD_ENDPOINT_ID = os.getenv("RUNPOD_ENDPOINT_ID")
+RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
 
-GPU_SERVER_URL = os.getenv("GPU_SERVER_URL")
+RUNPOD_URL = f"https://api.runpod.ai/v2/{RUNPOD_ENDPOINT_ID}/runsync"
+
+# GPU_SERVER_URL = os.getenv("GPU_SERVER_URL")
 
 
 class TryOnService:
@@ -63,17 +70,27 @@ class TryOnService:
         category: str
     ) -> str:
 
+        # RunPod wajib dibungkus dalam key "input"
         payload = {
-            "person_b64": person_b64,
-            "cloth_b64": cloth_b64,
-            "category": category
+            "input": {
+                "action": "tryon",
+                "person_b64": person_b64,
+                "cloth_b64": cloth_b64,
+                "category": category
+            }
+        }
+
+        headers = {
+            "Authorization": f"Bearer {RUNPOD_API_KEY}",
+            "Content-Type": "application/json"
         }
 
         try:
 
             response = requests.post(
-                f"{GPU_SERVER_URL}/tryon",
+                RUNPOD_URL,
                 json=payload,
+                headers=headers,
                 timeout=600
             )
 
@@ -81,16 +98,45 @@ class TryOnService:
 
                 raise HTTPException(
                     status_code=500,
-                    detail=f"Inferensi {category} gagal"
+                    detail=f"Inferensi {category} gagal (HTTP {response.status_code})"
                 )
 
-            return response.json()["result_b64"]
+            data = response.json()
+            data = response.json()
+
+            print("================================")
+            print("RUNPOD RESPONSE")
+            print(data)
+            print("================================")
+
+            # RunPod bisa balikin status FAILED meski HTTP 200
+            if data.get("status") == "FAILED":
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Inferensi {category} gagal: {data.get('error', 'unknown error')}"
+                )
+
+            output = data.get("output", {})
+
+            if "error" in output:
+                raise HTTPException(
+                    status_code=400,
+                    detail=output["error"]
+                )
+
+            if "result_b64" not in output:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Response RunPod tidak berisi result_b64: {data}"
+                )
+
+            return output["result_b64"]
 
         except requests.RequestException as e:
 
             raise HTTPException(
                 status_code=500,
-                detail=f"Gagal koneksi GPU server: {str(e)}"
+                detail=f"Gagal koneksi RunPod: {str(e)}"
             )
 
     # =====================================================

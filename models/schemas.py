@@ -45,6 +45,7 @@ class ClothingItemResponse(BaseModel):
     activities: str
     pattern: str
     imageUrl: str
+    publicId: Optional[str] = None
     createdAt: str
 
 class DetectedAttributes(BaseModel):

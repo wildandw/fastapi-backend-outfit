@@ -1,6 +1,11 @@
 from utils.firebase import get_db_reference
 from utils.cloudinary_helper import delete_image
+
 from services.clothing_validator import ClothingValidator
+from services.attribute_detection_service import AttributeDetectionService
+from services.image_service import ImageService
+from services.removebg_service import RemoveBackgroundService
+
 from fastapi import HTTPException
 
 import requests
@@ -10,7 +15,71 @@ class WardrobeService:
     def __init__(self):
 
         self.clothing_validator = ClothingValidator()
+
+        self.attribute_detection_service = (
+            AttributeDetectionService()
+        )
+
+        self.image_service = ImageService()
+
+        self.removebg_service = (
+            RemoveBackgroundService()
+        )
         
+    #====================================================
+    # PROCESS UPLOAD
+    # =====================================================
+    def process_upload(
+        self,
+        image_bytes: bytes,
+        user_id: str
+    ) -> dict:
+
+        # Remove Background
+
+        removed_bg_bytes = (
+            self.removebg_service.remove_background(
+                image_bytes
+            )
+        )
+
+        # Thumbnail
+
+        thumbnail_bytes = (
+            self.image_service.create_thumbnail(
+                removed_bg_bytes
+            )
+        )
+
+        # Upload Cloudinary
+
+        upload_result = (
+            self.image_service.upload_to_cloudinary(
+                thumbnail_bytes,
+                folder=f"wardrobe/{user_id}"
+            )
+        )
+
+        image_url = upload_result["image_url"]
+
+        public_id = upload_result["public_id"]
+
+        # Detect Attributes
+
+        detected_attributes = (
+            self.attribute_detection_service
+            .detect_attributes(
+                thumbnail_bytes
+            )
+        )
+
+        return {
+            "image_url": image_url,
+            "public_id": public_id,
+            "detected_attributes": detected_attributes,
+            "message": "Gambar berhasil diunggah"
+        }   
+    
     # =====================================================
     # validasi pakaian
     # =====================================================

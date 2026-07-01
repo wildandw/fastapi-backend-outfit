@@ -98,6 +98,28 @@ class AttributeDetectionService:
             "openai/clip-vit-base-patch32"
         )
 
+
+    # =====================================================
+    # Validasi Pakaian
+    # =====================================================
+    def validate_clothing(
+            self,
+            image_bytes: bytes
+        ):
+
+            clothing_type, confidence = (
+                self.detect_clothing_type(
+                    image_bytes
+                )
+            )
+
+            return {
+                "is_clothing": confidence >= 0.35,
+                "confidence": confidence,
+                "detected_type": clothing_type
+            }
+            
+            
     # =====================================================
     # DETECT COLOR
     # =====================================================
@@ -321,3 +343,6 @@ class AttributeDetectionService:
 
             "confidence": avg_confidence
         }
+        
+        
+        
