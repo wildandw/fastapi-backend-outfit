@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from PIL import Image
 import io
+from services.attribute_detection_service import AttributeDetectionService
 
 from middleware.auth import get_current_user
 
@@ -19,7 +20,7 @@ from services.wardrobe_service import WardrobeService
 router = APIRouter()
 
 wardrobe_service = WardrobeService()
-
+detection_service = AttributeDetectionService()
 
 
 # =====================================================
@@ -122,8 +123,7 @@ async def add_clothing_item(
         "category": item_data.category,
         "color": item_data.color,
         "style": item_data.style,
-        "activities": item_data.activities,
-        "pattern": item_data.pattern,
+        "occasion": item_data.occasion,
         "imageUrl": image_url,
         "publicId": public_id,
         "createdAt": datetime.utcnow().isoformat()

@@ -23,8 +23,7 @@ class ClothingItemCreate(BaseModel):
     category: str           # Tops / Bottoms
     color: str              # Warna dominan
     style: str              # Casual / Formal / Sporty / dll
-    activities: str         # Hangout / Work / Sport / dll
-    pattern: str            # Solid / Stripe / Floral / dll
+    occasion: str         # Hangout / Work / Sport / dll
 
 class ClothingItemUpdate(BaseModel):
     """Schema untuk mengubah metadata pakaian"""
@@ -33,7 +32,6 @@ class ClothingItemUpdate(BaseModel):
     color: Optional[str] = None
     style: Optional[str] = None
     activities: Optional[str] = None
-    pattern: Optional[str] = None
 
 class ClothingItemResponse(BaseModel):
     """Schema response untuk item pakaian"""
@@ -42,8 +40,7 @@ class ClothingItemResponse(BaseModel):
     category: str
     color: str
     style: str
-    activities: str
-    pattern: str
+    occasion: str
     imageUrl: str
     publicId: Optional[str] = None
     createdAt: str
@@ -53,8 +50,7 @@ class DetectedAttributes(BaseModel):
     color: str
     category: str
     style: str
-    activities: str
-    pattern: str
+    occasion: str
     confidence: float
 
 # ── RECOMMENDATION MODELS ──
@@ -65,10 +61,9 @@ class RecommendationRequest(BaseModel):
 
 class ScoreDetail(BaseModel):
     """Schema rincian skor rule-based"""
-    color_score: float      # maks 45 poin
-    pattern_score: float    # maks 25 poin
-    occasion_score: float   # maks 30 poin
-    style_score: float      # maks 15 poin
+    color_score: float      # maks 42,5
+    occasion_score: float   # maks 37,5 poin
+    style_score: float      # maks 20 poin
     total_score: float
     normalized_score: float # skala 0-100
 
