@@ -31,7 +31,7 @@ class ClothingItemUpdate(BaseModel):
     category: Optional[str] = None
     color: Optional[str] = None
     style: Optional[str] = None
-    activities: Optional[str] = None
+    occasion: Optional[str] = None
 
 class ClothingItemResponse(BaseModel):
     """Schema response untuk item pakaian"""
