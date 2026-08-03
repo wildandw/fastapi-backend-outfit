@@ -14,8 +14,25 @@ def verify_token(token: str) -> dict:
     Memverifikasi JWT Token dari Firebase Authentication
     menggunakan firebase_admin.auth.verify_id_token()
     """
-    decoded_token = auth.verify_id_token(token)
-    return decoded_token
+    try:
+
+        decoded_token = auth.verify_id_token(
+            token,
+            clock_skew_seconds=10
+        )
+
+        print("TOKEN VERIFIED")
+        print(decoded_token)
+
+        return decoded_token
+
+    except Exception as e:
+
+        print("VERIFY TOKEN ERROR:")
+        print(type(e))
+        print(str(e))
+
+        raise e
 
 def get_db_reference(path: str):
     """

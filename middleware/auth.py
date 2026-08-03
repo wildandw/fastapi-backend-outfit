@@ -16,7 +16,11 @@ def get_current_user(
         token = credentials.credentials
         decoded_token = verify_token(token)
         return decoded_token
-    except Exception:
+    except Exception as e:
+
+        print("AUTH ERROR:")
+        print(str(e))
+
         raise HTTPException(
             status_code=401,
             detail="Token tidak valid atau sudah kadaluarsa"

@@ -4,8 +4,10 @@ import uuid
 from datetime import datetime
 from PIL import Image
 import io
+from services.attribute_detection_service import AttributeDetectionService
 
 from middleware.auth import get_current_user
+
 from models.schemas import (
     ClothingItemCreate,
     ClothingItemUpdate,
@@ -13,17 +15,12 @@ from models.schemas import (
     DetectedAttributes
 )
 
-from services.removebg_service import RemoveBackgroundService
 from services.wardrobe_service import WardrobeService
-from services.attribute_detection_service import AttributeDetectionService
-from services.image_service import ImageService
 
 router = APIRouter()
 
-removebg_service = RemoveBackgroundService()
 wardrobe_service = WardrobeService()
 detection_service = AttributeDetectionService()
-image_service = ImageService()
 
 
 # =====================================================
@@ -40,73 +37,60 @@ async def upload_clothing_image(
         # =====================================================
         # VALIDASI FILE
         # =====================================================
+
         if not file.content_type.startswith("image/"):
+
             raise HTTPException(
                 status_code=400,
-                detail=f"File harus berupa gambar. Diterima: {file.content_type}"
+                detail=(
+                    f"File harus berupa gambar. "
+                    f"Diterima: {file.content_type}"
+                )
             )
 
         # =====================================================
         # BACA FILE
         # =====================================================
+
         image_bytes = await file.read()
 
         if not image_bytes:
+
             raise HTTPException(
                 status_code=400,
                 detail="File gambar kosong"
             )
 
         # =====================================================
-        # VALIDASI IMAGE DENGAN PIL
+        # VALIDASI PIL
         # =====================================================
+
         try:
-            image = Image.open(io.BytesIO(image_bytes))
+
+            image = Image.open(
+                io.BytesIO(image_bytes)
+            )
+
             image.verify()
+
         except Exception:
+
             raise HTTPException(
                 status_code=400,
-                detail="File gambar rusak atau format tidak didukung"
+                detail=(
+                    "File gambar rusak atau "
+                    "format tidak didukung"
+                )
             )
 
         # =====================================================
-        # REMOVE BACKGROUND
+        # SERVICE LAYER
         # =====================================================
-        removed_bg_bytes = removebg_service.remove_background(
-            image_bytes
+
+        return wardrobe_service.process_upload(
+            image_bytes=image_bytes,
+            user_id=current_user["uid"]
         )
-
-        # =====================================================
-        # CREATE THUMBNAIL
-        # =====================================================
-        thumbnail_bytes = image_service.create_thumbnail(
-            removed_bg_bytes
-        )
-
-        # =====================================================
-        # UPLOAD CLOUDINARY
-        # =====================================================
-        upload_result = image_service.upload_to_cloudinary(
-            thumbnail_bytes,
-            folder=f"wardrobe/{current_user['uid']}"
-        )
-
-        image_url = upload_result["image_url"]
-        public_id = upload_result["public_id"]
-
-        # =====================================================
-        # DETECT ATTRIBUTES
-        # =====================================================
-        detected_attrs = detection_service.detect_attributes(
-            thumbnail_bytes
-        )
-
-        return {
-            "image_url": image_url,
-            "public_id": public_id,
-            "detected_attributes": detected_attrs,
-            "message": "Gambar berhasil diunggah"
-        }
 
     except Exception as e:
 
@@ -139,12 +123,20 @@ async def add_clothing_item(
         "category": item_data.category,
         "color": item_data.color,
         "style": item_data.style,
-        "activities": item_data.activities,
-        "pattern": item_data.pattern,
+        "occasion": item_data.occasion,
         "imageUrl": image_url,
         "publicId": public_id,
         "createdAt": datetime.utcnow().isoformat()
     }
+
+    image_bytes = wardrobe_service.download_image(
+        image_url
+    )
+
+    wardrobe_service.validate_clothing(
+        image_bytes=image_bytes,
+        category=item_data.category
+    )
 
     saved_item = wardrobe_service.save_item(
         current_user["uid"],
