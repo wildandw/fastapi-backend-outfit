@@ -12,3 +12,4 @@ numpy==1.26.4
 requests==2.32.2
 python-dotenv==1.0.1
 pydantic==2.7.1
+ultralytics
