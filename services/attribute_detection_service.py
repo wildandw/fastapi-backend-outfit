@@ -2,8 +2,8 @@ from PIL import Image
 from io import BytesIO
 from colorthief import ColorThief
 import numpy as np
-from transformers import CLIPProcessor, CLIPModel
-import torch
+
+from services.clip_service import CLIPService
 
 
 class AttributeDetectionService:
@@ -108,13 +108,12 @@ class AttributeDetectionService:
     # INIT MODEL
     # =====================================================
 
-    def __init__(self):
+    def __init__(
+        self,
+        clip_service: CLIPService
+    ):
 
-        model_name = "openai/clip-vit-base-patch32"
-
-        self.model = CLIPModel.from_pretrained(model_name)
-
-        self.processor = CLIPProcessor.from_pretrained(model_name)
+        self.clip_service = clip_service
 
     # =====================================================
     # VALIDATE CLOTHING
@@ -227,32 +226,12 @@ class AttributeDetectionService:
         labels: list
     ):
 
-        image = Image.open(
-            BytesIO(image_bytes)
-        ).convert("RGB")
-
         prompts = self._build_prompts(labels)
 
-        inputs = self.processor(
-            text=prompts,
-            images=image,
-            return_tensors="pt",
-            padding=True
-        )
-
-        with torch.no_grad():
-
-            outputs = self.model(**inputs)
-
-            logits = outputs.logits_per_image
-
-            probs = logits.softmax(dim=1)[0]
-
-        best_index = torch.argmax(probs).item()
-
-        return (
-            labels[best_index],
-            float(probs[best_index])
+        return self.clip_service.classify(
+            image_bytes=image_bytes,
+            labels=labels,
+            prompts=prompts
         )
     
     # =====================================================

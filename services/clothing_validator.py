@@ -1,25 +1,14 @@
 from io import BytesIO
 from PIL import Image
 
-from transformers import (
-    CLIPProcessor,
-    CLIPModel
-)
-
-import torch
+from services.clip_service import CLIPService
 
 
 class ClothingValidator:
 
-    def __init__(self):
+    def __init__(self, clip_service: CLIPService):
 
-        self.model = CLIPModel.from_pretrained(
-            "openai/clip-vit-base-patch32"
-        )
-
-        self.processor = CLIPProcessor.from_pretrained(
-            "openai/clip-vit-base-patch32"
-        )
+        self.clip_service = clip_service
 
         self.top_labels = [
             "a shirt",
@@ -59,23 +48,11 @@ class ClothingValidator:
             ]
         )
 
-        inputs = self.processor(
-            text=labels,
-            images=image,
-            return_tensors="pt",
-            padding=True
+        predicted, confidence = self.clip_service.classify(
+            image_bytes=image_bytes,
+            labels=labels,
+            prompts=labels
         )
-
-        outputs = self.model(**inputs)
-
-        probs = (
-            outputs.logits_per_image
-            .softmax(dim=1)
-        )
-
-        best_idx = probs.argmax().item()
-
-        predicted = labels[best_idx]
 
         if category == "Tops":
             return predicted in self.top_labels
