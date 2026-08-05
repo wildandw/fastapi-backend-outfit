@@ -5,6 +5,7 @@ from services.clothing_validator import ClothingValidator
 from services.attribute_detection_service import AttributeDetectionService
 from services.image_service import ImageService
 from services.removebg_service import RemoveBackgroundService
+from services.clip_service import CLIPService
 
 from fastapi import HTTPException
 
@@ -14,10 +15,20 @@ class WardrobeService:
 
     def __init__(self):
 
-        self.clothing_validator = ClothingValidator()
+        # =====================================================
+        # SHARED CLIP MODEL
+        # =====================================================
+
+        self.clip_service = CLIPService()
+
+        self.clothing_validator = ClothingValidator(
+            self.clip_service
+        )
 
         self.attribute_detection_service = (
-            AttributeDetectionService()
+            AttributeDetectionService(
+                self.clip_service
+            )
         )
 
         self.image_service = ImageService()

@@ -4,7 +4,6 @@ import uuid
 from datetime import datetime
 from PIL import Image
 import io
-from services.attribute_detection_service import AttributeDetectionService
 
 from middleware.auth import get_current_user
 
@@ -20,7 +19,6 @@ from services.wardrobe_service import WardrobeService
 router = APIRouter()
 
 wardrobe_service = WardrobeService()
-detection_service = AttributeDetectionService()
 
 
 # =====================================================
@@ -249,7 +247,7 @@ async def detect_attributes(
 
     image_bytes = await file.read()
 
-    detected = detection_service.detect_attributes(
+    detected = wardrobe_service.attribute_detection_service.detect_attributes(
         image_bytes
     )
 
