@@ -247,8 +247,15 @@ async def detect_attributes(
 
     image_bytes = await file.read()
 
-    detected = wardrobe_service.attribute_detection_service.detect_attributes(
-        image_bytes
+    removed_bg_bytes = (
+        wardrobe_service.removebg_service
+        .remove_background(image_bytes)
+    )
+
+    detected = (
+        wardrobe_service
+        .attribute_detection_service
+        .detect_attributes(removed_bg_bytes)
     )
 
     return detected
